@@ -19,18 +19,21 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {Abi} from "@polkadot/api-contract";
-import {TypeParser} from "@727-ventures/typechain-polkadot-parser";
+import { Abi } from "@polkadot/api-contract";
+import { TypeParser } from "@dpowxconsensus/typechain-polkadot-parser";
 import Handlebars from "handlebars";
-import {TypeInfo} from "@727-ventures/typechain-polkadot-parser/src/types/TypeInfo";
-import {Import} from "../types";
-import {readTemplate} from "../utils/handlebars-helpers";
-import {writeFileSync} from "../utils/directories";
-import {TypechainPlugin} from "../types/interfaces";
+import { TypeInfo } from "@dpowxconsensus/typechain-polkadot-parser/src/types/TypeInfo";
+import { Import } from "../types";
+import { readTemplate } from "../utils/handlebars-helpers";
+import { writeFileSync } from "../utils/directories";
+import { TypechainPlugin } from "../types/interfaces";
 
-const generateForMetaTemplate = Handlebars.compile(readTemplate("types-arguments"));
+const generateForMetaTemplate = Handlebars.compile(
+	readTemplate("types-arguments")
+);
 
-export const FILE = (tsTypes : TypeInfo[], additionalImports: Import[]) => generateForMetaTemplate({tsTypes, additionalImports});
+export const FILE = (tsTypes: TypeInfo[], additionalImports: Import[]) =>
+	generateForMetaTemplate({ tsTypes, additionalImports });
 /**
  * generates a types-arguments file
  *
@@ -48,7 +51,12 @@ function generate(abi: Abi, fileName: string, absPathToOutput: string) {
 }
 
 export default class TypesArgumentsPlugin implements TypechainPlugin {
-	generate(abi: Abi, fileName: string, absPathToABIs: string, absPathToOutput: string): void {
+	generate(
+		abi: Abi,
+		fileName: string,
+		absPathToABIs: string,
+		absPathToOutput: string
+	): void {
 		generate(abi, fileName, absPathToOutput);
 	}
 

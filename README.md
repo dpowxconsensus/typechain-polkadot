@@ -5,9 +5,9 @@
 If you have any questions regarding Typechain-Polkadot, you can join the [Brushfam Element channel](https://matrix.to/#/!utTuYglskDvqRRMQta:matrix.org?via=matrix.org&via=t2bot.io&via=web3.foundation) to find your answers and meet other ink! smart contracts developers.
 
 ### Latest releases:
-- Typechain-Polkadot [![npm version](https://badge.fury.io/js/@727-ventures%2Ftypechain-polkadot.svg)](https://badge.fury.io/js/@727-ventures%2Ftypechain-polkadot)
-- Typechain-Compiler [![npm version](https://badge.fury.io/js/@727-ventures%2Ftypechain-compiler.svg)](https://badge.fury.io/js/@727-ventures%2Ftypechain-compiler)
-- Typechain-Types [![npm version](https://badge.fury.io/js/@727-ventures%2Ftypechain-types.svg)](https://badge.fury.io/js/@727-ventures%2Ftypechain-types)
+- Typechain-Polkadot [![npm version](https://badge.fury.io/js/@dpowxconsensus%2Ftypechain-polkadot.svg)](https://badge.fury.io/js/@dpowxconsensus%2Ftypechain-polkadot)
+- Typechain-Compiler [![npm version](https://badge.fury.io/js/@dpowxconsensus%2Ftypechain-compiler.svg)](https://badge.fury.io/js/@dpowxconsensus%2Ftypechain-compiler)
+- Typechain-Types [![npm version](https://badge.fury.io/js/@dpowxconsensus%2Ftypechain-types.svg)](https://badge.fury.io/js/@dpowxconsensus%2Ftypechain-types)
 ## Overview :page_facing_up:
 
 Typechain is maintained by [Brushfam](https://www.brushfam.io/) team to improve developers’ experience working with ink! smart contracts.
@@ -25,13 +25,13 @@ Interaction with blockchain is done with polkadot.js library, which only has abs
 Install the package as dependency:
 
 ```bash
-npm i @727-ventures/typechain-polkadot
+npm i @dpowxconsensus/typechain-polkadot
 ```
 
 Pass the folder with artifacts(in the example it is `artifacts`) as input argument
 and the output folder(in the example it is `typed_contracts`):
 ```bash
-npx @727-ventures/typechain-polkadot --in artifacts --out typed_contracts
+npx @dpowxconsensus/typechain-polkadot --in artifacts --out typed_contracts
 ```
 
 Import the contract what you want to use(in the example it is [`my_psp22`](https://github.com/727-Ventures/openbrush-contracts/tree/main/examples/psp22)):

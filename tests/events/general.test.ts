@@ -1,11 +1,11 @@
-import Contract from '../generated/contracts/my_psp34_events';
-import Constructors from '../generated/constructors/my_psp34_events';
-import {ApiPromise, Keyring} from "@polkadot/api";
-import type {KeyringPair} from "@polkadot/keyring/types";
-import {GetAccounts} from "../config";
-import {IdBuilder} from "../generated/types-returns/my_psp34_events";
-import {IdBuilder as IdBuilderArgs} from "../generated/types-arguments/my_psp34_events";
-import {ReturnNumber} from "@727-ventures/typechain-types";
+import Contract from "../generated/contracts/my_psp34_events";
+import Constructors from "../generated/constructors/my_psp34_events";
+import { ApiPromise, Keyring } from "@polkadot/api";
+import type { KeyringPair } from "@polkadot/keyring/types";
+import { GetAccounts } from "../config";
+import { IdBuilder } from "../generated/types-returns/my_psp34_events";
+import { IdBuilder as IdBuilderArgs } from "../generated/types-arguments/my_psp34_events";
+import { ReturnNumber } from "@dpowxconsensus/typechain-types";
 
 describe("Events", () => {
 	let api: ApiPromise;
@@ -24,7 +24,7 @@ describe("Events", () => {
 
 		const factory = new Constructors(api, UserAlice);
 
-		const {address} = await factory.new();
+		const { address } = await factory.new();
 
 		contract = new Contract(address, UserAlice, api);
 		contract_bob = new Contract(address, UserBob, api);
@@ -49,7 +49,7 @@ describe("Events", () => {
 				from: UserAlice.address,
 				to: UserBob.address,
 				id: IdBuilder.U128(new ReturnNumber(1)),
-			}
+			},
 		];
 
 		contract.events.subscribeOnTransferEvent((event) => {
@@ -70,12 +70,15 @@ describe("Events", () => {
 	});
 
 	test("Test events on submittables", async () => {
-		const result = await contract.tx.mint(UserAlice.address, IdBuilderArgs.U32(1));
+		const result = await contract.tx.mint(
+			UserAlice.address,
+			IdBuilderArgs.U32(1)
+		);
 
 		expect(result.events!.length).toBe(1);
 
 		expect(result.events![0]).toMatchObject({
-			name: 'Transfer',
+			name: "Transfer",
 			args: {
 				from: null,
 				to: UserAlice.address.toString(),
@@ -84,13 +87,16 @@ describe("Events", () => {
 		});
 	});
 
-	test('Test events on submittables with ReturnNumber', async () => {
-		const result2 = await contract.tx.mint(UserAlice.address, IdBuilderArgs.U128(1));
+	test("Test events on submittables with ReturnNumber", async () => {
+		const result2 = await contract.tx.mint(
+			UserAlice.address,
+			IdBuilderArgs.U128(1)
+		);
 
 		expect(result2.events!.length).toBe(1);
 
 		expect(result2.events![0]).toMatchObject({
-			name: 'Transfer',
+			name: "Transfer",
 			args: {
 				from: null,
 				to: UserAlice.address.toString(),
@@ -98,5 +104,4 @@ describe("Events", () => {
 			},
 		});
 	});
-
 });

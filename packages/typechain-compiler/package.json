@@ -1,6 +1,6 @@
 {
 	"name": "@dpowxconsensus/typechain-compiler",
-	"version": "1.2.2",
+	"version": "1.2.6",
 	"description": "Util to test and compile your rust project",
 	"bin": {
 		"typechain-compiler": "bin/index.js"
@@ -30,7 +30,7 @@
 	},
 	"homepage": "https://github.com/dpowxconsensus/typechain-polkadot#readme",
 	"dependencies": {
-		"@727-ventures/typechain-polkadot": "^1.1.1",
+		"@dpowxconsensus/typechain-polkadot": "^1.2.6",
 		"@types/consola": "^2.2.5",
 		"@types/yargs": "^17.0.10",
 		"chalk": "^4.1.0",

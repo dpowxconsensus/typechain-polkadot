@@ -21,23 +21,21 @@
 
 import type { ContractPromise } from "@polkadot/api-contract";
 import type {
-	RequestArgumentType, GasLimitAndValue, MethodDoesntExistError,
-} from './types';
-import {
-	_genValidGasLimitAndValue,
-} from './query';
-import type {
-	SubmittableExtrinsic,
-} from '@polkadot/api/submittable/types';
-import type { KeyringPair } from '@polkadot/keyring/types';
-import type { Registry } from '@polkadot/types-codec/types';
-import type {ApiPromise, SubmittableResult} from "@polkadot/api";
+	RequestArgumentType,
+	GasLimitAndValue,
+	MethodDoesntExistError,
+} from "./types";
+import { _genValidGasLimitAndValue } from "./query";
+import type { SubmittableExtrinsic } from "@polkadot/api/submittable/types";
+import type { KeyringPair } from "@polkadot/keyring/types";
+import type { Registry } from "@polkadot/types-codec/types";
+import type { ApiPromise, SubmittableResult } from "@polkadot/api";
 // @ts-ignore
-import type {EventRecord} from "@polkadot/api/submittable";
-import {TypeTS} from "@727-ventures/typechain-polkadot-parser/src/types/TypeInfo";
-import {convertWeight} from "@polkadot/api-contract/base/util";
-import {Weight, WeightV2} from "@polkadot/types/interfaces";
-import {BN_HUNDRED, BN_ZERO} from "@polkadot/util";
+import type { EventRecord } from "@polkadot/api/submittable";
+import { TypeTS } from "@dpowxconsensus/typechain-polkadot-parser/src/types/TypeInfo";
+import { convertWeight } from "@polkadot/api-contract/base/util";
+import { Weight, WeightV2 } from "@polkadot/types/interfaces";
+import { BN_HUNDRED, BN_ZERO } from "@polkadot/util";
 
 type SignAndSendSuccessResponse = {
 	from: string;
@@ -53,30 +51,33 @@ type SignAndSendSuccessResponse = {
 	};
 };
 
-export type {
-	SignAndSendSuccessResponse,
-};
+export type { SignAndSendSuccessResponse };
 
 export async function txSignAndSend(
 	nativeAPI: ApiPromise,
-	nativeContract : ContractPromise,
-	signer : KeyringPair | string,
-	title : string,
-	eventHandler : (event: EventRecord[]) => {
+	nativeContract: ContractPromise,
+	signer: KeyringPair | string,
+	title: string,
+	eventHandler: (event: EventRecord[]) => {
 		[index: string]: any;
 	},
-	args ? : readonly RequestArgumentType[],
-	gasLimitAndValue ? : GasLimitAndValue,
+	args?: readonly RequestArgumentType[],
+	gasLimitAndValue?: GasLimitAndValue
 ) {
-	const _gasLimitAndValue = await _genValidGasLimitAndValue(nativeAPI, gasLimitAndValue);
-	const _realGasLimit = gasLimitAndValue || {gasLimit: undefined, value: undefined};
+	const _gasLimitAndValue = await _genValidGasLimitAndValue(
+		nativeAPI,
+		gasLimitAndValue
+	);
+	const _realGasLimit = gasLimitAndValue || {
+		gasLimit: undefined,
+		value: undefined,
+	};
 
 	// estimate gas limit
-	const signerAddress = typeof signer === 'string' ? signer : signer.address;
-	const estimatedGasLimit = (await nativeContract.query[title](
-		signerAddress,
-		_gasLimitAndValue, ...args
-	)).gasRequired;
+	const signerAddress = typeof signer === "string" ? signer : signer.address;
+	const estimatedGasLimit = (
+		await nativeContract.query[title](signerAddress, _gasLimitAndValue, ...args)
+	).gasRequired;
 
 	const estimatedGasLimitAndValue = {
 		gasLimit: _realGasLimit.gasLimit || estimatedGasLimit,
@@ -84,22 +85,30 @@ export async function txSignAndSend(
 	};
 
 	const submittableExtrinsic = buildSubmittableExtrinsic(
-		nativeAPI, nativeContract,
-		title, args, estimatedGasLimitAndValue,
+		nativeAPI,
+		nativeContract,
+		title,
+		args,
+		estimatedGasLimitAndValue
 	);
-	return _signAndSend(nativeAPI.registry, submittableExtrinsic, signer, eventHandler);
+	return _signAndSend(
+		nativeAPI.registry,
+		submittableExtrinsic,
+		signer,
+		eventHandler
+	);
 }
 
 export function buildSubmittableExtrinsic(
 	api: ApiPromise,
-	nativeContract : ContractPromise,
-	title : string,
-	args ? : readonly RequestArgumentType[],
-	gasLimitAndValue ? : GasLimitAndValue,
+	nativeContract: ContractPromise,
+	title: string,
+	args?: readonly RequestArgumentType[],
+	gasLimitAndValue?: GasLimitAndValue
 ) {
-	if(nativeContract.tx[title] == null) {
-		const error : MethodDoesntExistError = {
-			issue: 'METHOD_DOESNT_EXIST',
+	if (nativeContract.tx[title] == null) {
+		const error: MethodDoesntExistError = {
+			issue: "METHOD_DOESNT_EXIST",
 			texts: [`Method name: '${title}'`],
 		};
 		throw error;
@@ -109,7 +118,7 @@ export function buildSubmittableExtrinsic(
 
 	const submittableExtrinsic = nativeContract.tx[title]!(
 		gasLimitAndValue,
-		..._args,
+		..._args
 	);
 
 	return submittableExtrinsic;
@@ -122,13 +131,13 @@ export function buildSubmittableExtrinsic(
  */
 export async function _signAndSend(
 	registry: Registry,
-	extrinsic: SubmittableExtrinsic<'promise'>,
+	extrinsic: SubmittableExtrinsic<"promise">,
 	signer: KeyringPair | string,
-	eventHandler : (event: EventRecord[]) => {
+	eventHandler: (event: EventRecord[]) => {
 		[index: string]: any;
-	},
+	}
 ): Promise<SignAndSendSuccessResponse> {
-	const signerAddress = typeof signer === 'string' ? signer : signer.address;
+	const signerAddress = typeof signer === "string" ? signer : signer.address;
 
 	return new Promise((resolve, reject) => {
 		const actionStatus = {
@@ -137,68 +146,65 @@ export async function _signAndSend(
 		} as SignAndSendSuccessResponse;
 
 		extrinsic
-			.signAndSend(
-				signer,
-				(result: SubmittableResult) => {
-					if (result.status.isInBlock) {
-						actionStatus.blockHash = result.status.asInBlock.toHex();
-					}
-
-					if (result.status.isFinalized || result.status.isInBlock) {
-						actionStatus.events = eventHandler(result.events);
-
-						result.events
-							.filter(
-								({ event: { section } }: any): boolean => section === 'system'
-							)
-							.forEach((event: any): void => {
-								const {
-									event: { data, method },
-								} = event;
-
-								if (method === 'ExtrinsicFailed') {
-									const [dispatchError] = data;
-									let message = dispatchError.type;
-
-									if (dispatchError.isModule) {
-										try {
-											const mod = dispatchError.asModule;
-											const error = registry.findMetaError(
-												new Uint8Array([
-													mod.index.toNumber(),
-													mod.error.toNumber()
-												])
-											);
-											message = `${error.section}.${error.name}${
-												Array.isArray(error.docs)
-													? `(${error.docs.join('')})`
-													: error.docs || ''
-											}`;
-										} catch (error) {
-											// swallow
-										}
-									}
-
-									actionStatus.error = {
-										message,
-									};
-
-									reject(actionStatus);
-								} else if (method === 'ExtrinsicSuccess') {
-									actionStatus.result = result;
-									resolve(actionStatus as SignAndSendSuccessResponse);
-								}
-							});
-					} else if (result.isError) {
-						actionStatus.error = {
-							data: result,
-						};
-						actionStatus.events = undefined;
-
-						reject(actionStatus);
-					}
+			.signAndSend(signer, (result: SubmittableResult) => {
+				if (result.status.isInBlock) {
+					actionStatus.blockHash = result.status.asInBlock.toHex();
 				}
-			)
+
+				if (result.status.isFinalized || result.status.isInBlock) {
+					actionStatus.events = eventHandler(result.events);
+
+					result.events
+						.filter(
+							({ event: { section } }: any): boolean => section === "system"
+						)
+						.forEach((event: any): void => {
+							const {
+								event: { data, method },
+							} = event;
+
+							if (method === "ExtrinsicFailed") {
+								const [dispatchError] = data;
+								let message = dispatchError.type;
+
+								if (dispatchError.isModule) {
+									try {
+										const mod = dispatchError.asModule;
+										const error = registry.findMetaError(
+											new Uint8Array([
+												mod.index.toNumber(),
+												mod.error.toNumber(),
+											])
+										);
+										message = `${error.section}.${error.name}${
+											Array.isArray(error.docs)
+												? `(${error.docs.join("")})`
+												: error.docs || ""
+										}`;
+									} catch (error) {
+										// swallow
+									}
+								}
+
+								actionStatus.error = {
+									message,
+								};
+
+								reject(actionStatus);
+							} else if (method === "ExtrinsicSuccess") {
+								actionStatus.result = result;
+								resolve(actionStatus as SignAndSendSuccessResponse);
+							}
+						});
+				} else if (result.isError) {
+					actionStatus.error = {
+						data: result,
+					};
+					actionStatus.events = undefined;
+
+					reject(actionStatus);
+				}
+			})
 			.catch((error: any) => {
 				actionStatus.error = {
 					message: error.message,

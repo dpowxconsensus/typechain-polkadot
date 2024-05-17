@@ -19,21 +19,28 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import BN from 'bn.js';
+import BN from "bn.js";
 // @ts-ignore
-import type { ContractExecResultErr } from '@polkadot/types/interfaces/contracts/types';
-import type {AnyJson} from "@polkadot/types-codec/types";
-import {TypeInfo} from "@727-ventures/typechain-polkadot-parser/src/types/TypeInfo";
+import type { ContractExecResultErr } from "@polkadot/types/interfaces/contracts/types";
+import type { AnyJson } from "@polkadot/types-codec/types";
+import { TypeInfo } from "@dpowxconsensus/typechain-polkadot-parser/src/types/TypeInfo";
 
-export type RequestArgumentType = number | string | boolean | bigint
+export type RequestArgumentType =
+	| number
+	| string
+	| boolean
+	| bigint
 	| (string | number)[]
-	| BN | null | AnyJson | Object;
+	| BN
+	| null
+	| AnyJson
+	| Object;
 
 export interface GasLimit {
 	/**
 	 * Defaults to `-1`
 	 */
-	gasLimit ? : bigint | BN | string | number;
+	gasLimit?: bigint | BN | string | number;
 }
 
 export interface GasLimitAndValue extends GasLimit {
@@ -41,68 +48,76 @@ export interface GasLimitAndValue extends GasLimit {
 	 * Only required for 'payable' methods
 	 * Defaults to `0`
 	 */
-	value ? : bigint | BN | string | number;
-};
+	value?: bigint | BN | string | number;
+}
 
 export interface GasLimitAndRequiredValue extends GasLimit {
 	/**
 	 * Only required for 'payable' methods
 	 * Defaults to `0`
 	 */
-	value : bigint | BN | string | number;
+	value: bigint | BN | string | number;
 }
 
 export interface ConstructorOptions extends GasLimitAndValue {
-	storageDepositLimit ? : bigint | BN | string | number;
+	storageDepositLimit?: bigint | BN | string | number;
 }
 
 //
 
 export interface ErrorWithTexts {
-	texts ? : string[];
-};
-
-export type MethodDoesntExistError = ErrorWithTexts & {
-	issue : 'METHOD_DOESNT_EXIST',
-};
-
-
-export type QueryCallError = MethodDoesntExistError | ErrorWithTexts & (
-	{
-		issue : 'FAIL_AT_CALL';
-		caughtError : unknown;
-	} | {
-		issue : 'FAIL_AFTER_CALL::IS_ERROR';
-		_resultIsOk : boolean;
-		_asError ? : ContractExecResultErr;
-	} | {
-		issue : 'FAIL_AFTER_CALL::RESULT_NOT_OK';
-		_asError ? : ContractExecResultErr;
-	} | {
-		issue : 'OUTPUT_IS_NULL',
-	}
-);
-
-export type QueryOkCallError = QueryCallError | {
-	issue : 'READ_ERR_IN_BODY',
-	_err : any;
-} | {
-	issue : 'BODY_ISNT_OKERR',
-	value : any;
-};
-
-export interface Result<T, E> {
-	Ok ?: T,
-	Err ?: E,
+	texts?: string[];
 }
 
-export class ResultBuilder{
-	static Ok<T, E>(value : T) : Result<T, E> {
+export type MethodDoesntExistError = ErrorWithTexts & {
+	issue: "METHOD_DOESNT_EXIST";
+};
+
+export type QueryCallError =
+	| MethodDoesntExistError
+	| (ErrorWithTexts &
+			(
+				| {
+						issue: "FAIL_AT_CALL";
+						caughtError: unknown;
+				  }
+				| {
+						issue: "FAIL_AFTER_CALL::IS_ERROR";
+						_resultIsOk: boolean;
+						_asError?: ContractExecResultErr;
+				  }
+				| {
+						issue: "FAIL_AFTER_CALL::RESULT_NOT_OK";
+						_asError?: ContractExecResultErr;
+				  }
+				| {
+						issue: "OUTPUT_IS_NULL";
+				  }
+			));
+
+export type QueryOkCallError =
+	| QueryCallError
+	| {
+			issue: "READ_ERR_IN_BODY";
+			_err: any;
+	  }
+	| {
+			issue: "BODY_ISNT_OKERR";
+			value: any;
+	  };
+
+export interface Result<T, E> {
+	Ok?: T;
+	Err?: E;
+}
+
+export class ResultBuilder {
+	static Ok<T, E>(value: T): Result<T, E> {
 		return {
 			Ok: value,
 		};
 	}
-	static Err<T, E>(error : E) : Result<T, E> {
+	static Err<T, E>(error: E): Result<T, E> {
 		return {
 			Err: error,
 		};
@@ -112,10 +127,8 @@ export class ResultBuilder{
 export class ReturnNumber {
 	readonly rawNumber: BN;
 
-	constructor(
-		value: number | string,
-	) {
-		if (typeof value == 'number') {
+	constructor(value: number | string) {
+		if (typeof value == "number") {
 			this.rawNumber = new BN(value);
 		} else {
 			this.rawNumber = new BN(value.substring(2), 16);

@@ -19,16 +19,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import {Abi} from "@polkadot/api-contract";
-import {Method} from "../types";
-import {TypeParser} from "@727-ventures/typechain-polkadot-parser";
+import { Abi } from "@polkadot/api-contract";
+import { Method } from "../types";
+import { TypeParser } from "@dpowxconsensus/typechain-polkadot-parser";
 import PathAPI from "path";
 import Handlebars from "handlebars";
-import {readTemplate} from "../utils/handlebars-helpers";
-import {writeFileSync} from "../utils/directories";
-import {TypechainPlugin} from "../types/interfaces";
+import { readTemplate } from "../utils/handlebars-helpers";
+import { writeFileSync } from "../utils/directories";
+import { TypechainPlugin } from "../types/interfaces";
 
-const generateForMetaTemplate = Handlebars.compile(readTemplate("constructors"));
+const generateForMetaTemplate = Handlebars.compile(
+	readTemplate("constructors")
+);
 
 /**
  * Generates file content for constructors/<fileName>.ts using Handlebars
@@ -38,8 +40,8 @@ const generateForMetaTemplate = Handlebars.compile(readTemplate("constructors"))
  * @param methods - The methods to generate for the file
  * @returns {string} Generated file content
  */
-export const FILE = (fileName : string, methods: Method[]) => generateForMetaTemplate({fileName, methods});
-
+export const FILE = (fileName: string, methods: Method[]) =>
+	generateForMetaTemplate({ fileName, methods });
 
 /**
  * Generates the constructors for the contract
@@ -49,22 +51,27 @@ export const FILE = (fileName : string, methods: Method[]) => generateForMetaTem
  * @param absPathToOutput - The absolute path to the output directory
  * @param absPathToABIs - The absolute path to the ABIs directory
  */
-function generate(abi: Abi, fileName: string, absPathToOutput: string, absPathToABIs: string) {
-	const relPathFromOutL1toABIs = PathAPI.relative(
-		process.cwd(),
-		absPathToABIs
-	);
+function generate(
+	abi: Abi,
+	fileName: string,
+	absPathToOutput: string,
+	absPathToABIs: string
+) {
+	const relPathFromOutL1toABIs = PathAPI.relative(process.cwd(), absPathToABIs);
 
 	const parser = new TypeParser(abi);
 
-	const __allArgs = abi.constructors.map(m => m.args).flat();
-	const __uniqueArgs : typeof __allArgs = [];
-	for(const __arg of __allArgs)
-		if(!__uniqueArgs.find(__a => __a.type.lookupIndex === __arg.type.lookupIndex))
+	const __allArgs = abi.constructors.map((m) => m.args).flat();
+	const __uniqueArgs: typeof __allArgs = [];
+	for (const __arg of __allArgs)
+		if (
+			!__uniqueArgs.find(
+				(__a) => __a.type.lookupIndex === __arg.type.lookupIndex
+			)
+		)
 			__uniqueArgs.push(__arg);
 
-
-	const _argsTypes = __uniqueArgs.map(a => ({
+	const _argsTypes = __uniqueArgs.map((a) => ({
 		id: a.type.lookupIndex!,
 		tsStr: parser.getType(a.type.lookupIndex as number).tsArgTypePrefixed,
 	}));
@@ -77,8 +84,10 @@ function generate(abi: Abi, fileName: string, absPathToOutput: string, absPathTo
 	});
 
 	_methodsNames = _methodsNames.map((m) => {
-		const _overloadsCount = _methodsNames.filter(__m => __m.cut === m.cut).length;
-		if(_overloadsCount > 1) {
+		const _overloadsCount = _methodsNames.filter(
+			(__m) => __m.cut === m.cut
+		).length;
+		if (_overloadsCount > 1) {
 			return {
 				original: m.original,
 				cut: m.original,
@@ -89,17 +98,19 @@ function generate(abi: Abi, fileName: string, absPathToOutput: string, absPathTo
 	});
 
 	const methods: Method[] = [];
-	for(const __message of abi.constructors) {
-		const _methodName = _methodsNames.find(__m => __m.original === __message.identifier)!;
+	for (const __message of abi.constructors) {
+		const _methodName = _methodsNames.find(
+			(__m) => __m.original === __message.identifier
+		)!;
 		methods.push({
 			name: _methodName.cut,
 			originalName: _methodName.original,
-			args: __message.args.map(__a => ({
+			args: __message.args.map((__a) => ({
 				name: __a.name,
-				type: _argsTypes.find(_a => _a.id === __a.type.lookupIndex)!,
+				type: _argsTypes.find((_a) => _a.id === __a.type.lookupIndex)!,
 			})),
 			payable: __message.isPayable,
-			methodType: 'constructor',
+			methodType: "constructor",
 		});
 	}
 
@@ -115,7 +126,12 @@ export default class ConstructorsPlugin implements TypechainPlugin {
 	outputDir = "constructors";
 	overrides = false;
 
-	generate(abi: Abi, fileName: string, absPathToABIs: string, absPathToOutput: string): void {
+	generate(
+		abi: Abi,
+		fileName: string,
+		absPathToABIs: string,
+		absPathToOutput: string
+	): void {
 		generate(abi, fileName, absPathToOutput, absPathToABIs);
 	}
 }

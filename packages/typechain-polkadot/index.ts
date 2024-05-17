@@ -33,39 +33,38 @@
  *  @example
  *  # Usage from CLI
  *  ```bash
- *     $ npm i @727-ventures/typechain-polkadot
- *     $ npx @727-ventures/typechain-polkadot --in path/to/abis --out path/to/output/folder
+ *     $ npm i @dpowxconsensus/typechain-polkadot
+ *     $ npx @dpowxconsensus/typechain-polkadot --in path/to/abis --out path/to/output/folder
  *  ```
  *
  *  @packageDocumentation
  */
 
-import YARGS from 'yargs';
+import YARGS from "yargs";
 
 import TypechainPolkadot from "./src/types/typechain";
 import PathAPI from "path";
 import FsAPI from "fs";
 
-const _argv = YARGS
-	.option('input', {
-		alias: ['in'],
-		demandOption: "Please, specify, where to take ABIs",
-		description: 'Input relative path',
-		type: 'string',
-	})
-	.option('output', {
+const _argv = YARGS.option("input", {
+	alias: ["in"],
+	demandOption: "Please, specify, where to take ABIs",
+	description: "Input relative path",
+	type: "string",
+})
+	.option("output", {
 		demandOption: "Please, specify, where to put generated files",
-		alias: ['out'],
-		description: 'Output relative path',
-		type: 'string',
+		alias: ["out"],
+		description: "Output relative path",
+		type: "string",
 	})
-	.option('pluginsDir', {
-		alias: ['plugins'],
-		description: 'Plugins directory',
-		type: 'string',
+	.option("pluginsDir", {
+		alias: ["plugins"],
+		description: "Plugins directory",
+		type: "string",
 	})
-	.help().alias( 'h', 'help')
-	.argv;
+	.help()
+	.alias("h", "help").argv;
 
 async function main() {
 	const argv = _argv as Awaited<typeof _argv>;
@@ -74,7 +73,9 @@ async function main() {
 
 	const typechain = new TypechainPolkadot();
 
-	const pluginsDir = argv.pluginsDir ? PathAPI.resolve(cwdPath, argv.pluginsDir) : undefined;
+	const pluginsDir = argv.pluginsDir
+		? PathAPI.resolve(cwdPath, argv.pluginsDir)
+		: undefined;
 
 	typechain.loadDefaultPlugins();
 
@@ -87,7 +88,7 @@ async function main() {
 		const pluginFileNames: string[] = [];
 
 		for (const file of pluginFiles) {
-			if (file.endsWith('.plugin.ts')) {
+			if (file.endsWith(".plugin.ts")) {
 				pluginFileNames.push(PathAPI.resolve(pluginsDir, file));
 			}
 		}
@@ -105,5 +106,3 @@ main().catch((e) => {
 	console.error(e);
 	process.exit(1);
 });
-
-

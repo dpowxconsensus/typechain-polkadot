@@ -22,7 +22,7 @@
 /**
  *  ## Typechain-Polkadot-Parser
  *
- *	Utility-package for parsing types from ABIs for @727-ventures/typechain-polkadot.
+ *	Utility-package for parsing types from ABIs for @dpowxconsensus/typechain-polkadot.
  *
  *
  *	@remarks
@@ -31,18 +31,20 @@
  *  @packageDocumentation
  */
 
-import {Abi} from "@polkadot/api-contract";
+import { Abi } from "@polkadot/api-contract";
 import {
 	generateClassEnum,
 	generateEnum,
-	generateInterfaceArgs, generateInterfaceReturns,
+	generateInterfaceArgs,
+	generateInterfaceReturns,
 	parsePrimitiveArgs,
-	parsePrimitiveReturns, preprocessABI,
+	parsePrimitiveReturns,
+	preprocessABI,
 } from "./src/utils";
-import {PortableType} from "@polkadot/types/interfaces/metadata/types";
-import {Vec} from "@polkadot/types-codec/base/Vec";
-import {TypeInfo, TypeTS} from "./src/types/TypeInfo";
-import {ContractEventSpecV2} from "@polkadot/types/interfaces/contractsAbi/types";
+import { PortableType } from "@polkadot/types/interfaces/metadata/types";
+import { Vec } from "@polkadot/types-codec/base/Vec";
+import { TypeInfo, TypeTS } from "./src/types/TypeInfo";
+import { ContractEventSpecV2 } from "@polkadot/types/interfaces/contractsAbi/types";
 import camelcase from "camelcase";
 
 export class TypeParser {
@@ -58,10 +60,8 @@ export class TypeParser {
 	 * @remark When you are creating instances of this class calling constructor, types are automatically parsing.
 	 */
 	constructor(abi: Abi) {
-
 		this.abiTypes = abi.metadata.types;
 		this.eventTypes = abi.metadata.spec.events;
-
 
 		this.tsTypes = this.abiTypes.map((_, i) => {
 			// check if type is using anywhere in the ABI
@@ -76,13 +76,13 @@ export class TypeParser {
 						if (arg.type.lookupIndex === i) {
 							isUsed = true;
 						}
-					} );
+					});
 				}
 			});
 
 			abi.metadata.types.forEach((type) => {
 				switch (type.type.def.type) {
-					case 'Composite':
+					case "Composite":
 						const _composite = type.type.def.asComposite;
 						_composite.fields.forEach((field) => {
 							if (field.type.toNumber() == i) {
@@ -90,7 +90,7 @@ export class TypeParser {
 							}
 						});
 						break;
-					case 'Variant':
+					case "Variant":
 						const _variant = type.type.def.asVariant;
 						_variant.variants.forEach((option) => {
 							option.fields.forEach((field) => {
@@ -100,19 +100,19 @@ export class TypeParser {
 							});
 						});
 						break;
-					case 'Sequence':
+					case "Sequence":
 						const _sequence = type.type.def.asSequence;
 						if (_sequence.type.toNumber() == i) {
 							isUsed = true;
 						}
 						break;
-					case 'Array':
+					case "Array":
 						const _array = type.type.def.asArray;
 						if (_array.type.toNumber() == i) {
 							isUsed = true;
 						}
 						break;
-					case 'Tuple':
+					case "Tuple":
 						const _tuple = type.type.def.asTuple;
 						_tuple.forEach((field) => {
 							if (field.toNumber() == i) {
@@ -122,7 +122,8 @@ export class TypeParser {
 						break;
 					default:
 						break;
-				}});
+				}
+			});
 
 			abi.metadata.spec.events.forEach((event) => {
 				event.args.forEach((arg) => {
@@ -137,7 +138,6 @@ export class TypeParser {
 		});
 
 		this.tsEventTypes = this.eventTypes.map((event, i) => {
-
 			const eventBody = this.generateEventBody(event);
 
 			const eventBodyStructure: {
@@ -145,7 +145,9 @@ export class TypeParser {
 			} = {};
 
 			event.args.forEach((arg, i) => {
-				eventBodyStructure[camelcase(arg.label.toString())] = this.getType(arg.type.type.toNumber()).typeDescription;
+				eventBodyStructure[camelcase(arg.label.toString())] = this.getType(
+					arg.type.type.toNumber()
+				).typeDescription;
 			});
 
 			return new TypeInfo(
@@ -159,10 +161,10 @@ export class TypeParser {
 					false,
 					false,
 					false,
-					eventBodyStructure,
+					eventBodyStructure
 				),
 				eventBody,
-				eventBody,
+				eventBody
 			);
 		});
 	}
@@ -195,17 +197,17 @@ export class TypeParser {
 		const type = this.abiTypes[typeId]!.type;
 
 		switch (type.def.type) {
-			case 'Composite':
+			case "Composite":
 				return this.generateComposite(typeId);
-			case 'Variant':
+			case "Variant":
 				return this.generateVariant(typeId);
-			case 'Sequence':
+			case "Sequence":
 				return this.generateSequence(typeId);
-			case 'Array':
+			case "Array":
 				return this.generateArray(typeId);
-			case 'Tuple':
+			case "Tuple":
 				return this.generateTuple(typeId);
-			case 'Primitive':
+			case "Primitive":
 				return this.generatePrimitive(typeId);
 			default:
 				throw new Error(`Unknown type ${type.def.type}`);
@@ -216,8 +218,13 @@ export class TypeParser {
 		const eventName = event.label.toString();
 
 		const eventBody = `export interface ${eventName} {
-${event.args.map((arg) => {
-		return `\t${camelcase(arg.label.toString())}: ${this.getType(arg.type.type.toNumber()).tsReturnTypePrefixed};`;}).join('\n')}
+${event.args
+	.map((arg) => {
+		return `\t${camelcase(arg.label.toString())}: ${
+			this.getType(arg.type.type.toNumber()).tsReturnTypePrefixed
+		};`;
+	})
+	.join("\n")}
 }`;
 
 		return eventBody;
@@ -235,16 +242,20 @@ ${event.args.map((arg) => {
 		const compositeName = type.path[type.path.length - 1]!.toString();
 
 		// @ts-ignore
-		if (composite.fields.length == 1 && composite.fields[0].typeName == "[u8; 32]") {
+		if (
+			composite.fields.length == 1 &&
+			//@ts-ignore
+			composite.fields[0].typeName == "[u8; 32]"
+		) {
 			return new TypeInfo(
 				typeId,
 				compositeName,
 				compositeName,
 				`ArgumentTypes.${compositeName}`,
 				`ReturnTypes.${compositeName}`,
-				new TypeTS(compositeName, false,false, true, 'string | number[]'),
+				new TypeTS(compositeName, false, false, true, "string | number[]"),
 				`export type ${compositeName} = string | number[]`,
-				`export type ${compositeName} = string | number[]`,
+				`export type ${compositeName} = string | number[]`
 			);
 		}
 
@@ -253,22 +264,31 @@ ${event.args.map((arg) => {
 		} = {};
 
 		composite.fields.forEach((field) => {
-			typeBody[camelcase(field.name.toString())] = this.generateType(field.type as unknown as number).typeDescription;
+			typeBody[camelcase(field.name.toString())] = this.generateType(
+				field.type as unknown as number
+			).typeDescription;
 		});
 
 		const compositeBodyReturns = generateInterfaceReturns(
 			compositeName,
-			composite.fields.map(field => field.name.toString()),
-			composite.fields.map(field => this.generateType(field.type as unknown as number))
+			composite.fields.map((field) => field.name.toString()),
+			composite.fields.map((field) =>
+				this.generateType(field.type as unknown as number)
+			)
 		);
 
 		const compositeBodyArgs = generateInterfaceArgs(
 			compositeName,
-			composite.fields.map(field => field.name.toString()),
-			composite.fields.map(field => this.generateType(field.type as unknown as number))
+			composite.fields.map((field) => field.name.toString()),
+			composite.fields.map((field) =>
+				this.generateType(field.type as unknown as number)
+			)
 		);
 
-		const tsReturnTypePrefixed = compositeName == 'ReturnNumber' ? 'ReturnNumber' : `ReturnTypes.${compositeName}`;
+		const tsReturnTypePrefixed =
+			compositeName == "ReturnNumber"
+				? "ReturnNumber"
+				: `ReturnTypes.${compositeName}`;
 
 		return new TypeInfo(
 			typeId,
@@ -276,9 +296,9 @@ ${event.args.map((arg) => {
 			compositeName,
 			`ArgumentTypes.${compositeName}`,
 			tsReturnTypePrefixed,
-			new TypeTS(compositeName, false,false, false, typeBody),
+			new TypeTS(compositeName, false, false, false, typeBody),
 			compositeBodyArgs,
-			compositeBodyReturns,
+			compositeBodyReturns
 		);
 	};
 
@@ -292,14 +312,19 @@ ${event.args.map((arg) => {
 
 		const typeName = type.def.asPrimitive.toString();
 
-		if (typeName == 'U128' || typeName == 'U256' || typeName == 'I128' || typeName == 'I256') {
+		if (
+			typeName == "U128" ||
+			typeName == "U256" ||
+			typeName == "I128" ||
+			typeName == "I256"
+		) {
 			return new TypeInfo(
 				typeId,
 				parsePrimitiveArgs(typeName),
-				'ReturnNumber',
+				"ReturnNumber",
 				parsePrimitiveArgs(typeName),
-				'ReturnNumber',
-				new TypeTS('ReturnNumber', false, true, false),
+				"ReturnNumber",
+				new TypeTS("ReturnNumber", false, true, false)
 			);
 		}
 
@@ -309,7 +334,7 @@ ${event.args.map((arg) => {
 			parsePrimitiveReturns(typeName),
 			parsePrimitiveArgs(typeName),
 			parsePrimitiveReturns(typeName),
-			new TypeTS(parsePrimitiveReturns(typeName), false,false, true),
+			new TypeTS(parsePrimitiveReturns(typeName), false, false, true)
 		);
 	};
 
@@ -319,7 +344,9 @@ ${event.args.map((arg) => {
 	 * @param typeId - The index of the type in the ABI
 	 */
 	private generateSequence = (typeId: number): TypeInfo => {
-		const type = this.abiTypes[typeId]!.type.def.asSequence.type.toJSON() as number;
+		const type = this.abiTypes[
+			typeId
+		]!.type.def.asSequence.type.toJSON() as number;
 
 		return new TypeInfo(
 			typeId,
@@ -327,7 +354,9 @@ ${event.args.map((arg) => {
 			`Array<${this.generateType(type).tsReturnType}>`,
 			`Array<${this.generateType(type).tsArgTypePrefixed}>`,
 			`Array<${this.generateType(type).tsReturnTypePrefixed}>`,
-			new TypeTS('Array', false, false, false,{'0': this.generateType(type).typeDescription}),
+			new TypeTS("Array", false, false, false, {
+				"0": this.generateType(type).typeDescription,
+			})
 		);
 	};
 
@@ -337,7 +366,9 @@ ${event.args.map((arg) => {
 	 * @param typeId - The index of the type in the ABI
 	 */
 	private generateArray = (typeId: number): TypeInfo => {
-		const type = this.abiTypes[typeId]!.type.def.asArray.type.toJSON() as number;
+		const type = this.abiTypes[
+			typeId
+		]!.type.def.asArray.type.toJSON() as number;
 
 		return new TypeInfo(
 			typeId,
@@ -345,7 +376,9 @@ ${event.args.map((arg) => {
 			`Array<${this.generateType(type).tsReturnType}>`,
 			`Array<${this.generateType(type).tsArgTypePrefixed}>`,
 			`Array<${this.generateType(type).tsReturnTypePrefixed}>`,
-			new TypeTS('Array', false, false, false,{'0': this.generateType(type).typeDescription}),
+			new TypeTS("Array", false, false, false, {
+				"0": this.generateType(type).typeDescription,
+			})
 		);
 	};
 
@@ -359,11 +392,11 @@ ${event.args.map((arg) => {
 		if (type.length == 0) {
 			return new TypeInfo(
 				typeId,
-				'null',
-				'null',
-				'null',
-				'null',
-				new TypeTS('null', false,false, true),
+				"null",
+				"null",
+				"null",
+				"null",
+				new TypeTS("null", false, false, true)
 			);
 		}
 
@@ -377,11 +410,17 @@ ${event.args.map((arg) => {
 
 		return new TypeInfo(
 			typeId,
-			`[${type.map(type => this.generateType(type).tsArgType).join(', ')}]`,
-			`[${type.map(type => this.generateType(type).tsReturnType).join(', ')}]`,
-			`[${type.map(type => this.generateType(type).tsArgTypePrefixed).join(', ')}]`,
-			`[${type.map(type => this.generateType(type).tsReturnTypePrefixed).join(', ')}]`,
-			new TypeTS('Tuple', false, false, false, typeBody),
+			`[${type.map((type) => this.generateType(type).tsArgType).join(", ")}]`,
+			`[${type
+				.map((type) => this.generateType(type).tsReturnType)
+				.join(", ")}]`,
+			`[${type
+				.map((type) => this.generateType(type).tsArgTypePrefixed)
+				.join(", ")}]`,
+			`[${type
+				.map((type) => this.generateType(type).tsReturnTypePrefixed)
+				.join(", ")}]`,
+			new TypeTS("Tuple", false, false, false, typeBody)
 		);
 	};
 
@@ -396,10 +435,14 @@ ${event.args.map((arg) => {
 
 		const variantName = type.path[type.path.length - 1]!.toString();
 
-		if (variantName == 'Result') {
-			const typeOk = this.generateType(variant.variants[0]!.fields[0]!.type.toNumber());
+		if (variantName == "Result") {
+			const typeOk = this.generateType(
+				variant.variants[0]!.fields[0]!.type.toNumber()
+			);
 
-			const typeErr = this.generateType(variant.variants[1]!.fields[0]!.type.toNumber());
+			const typeErr = this.generateType(
+				variant.variants[1]!.fields[0]!.type.toNumber()
+			);
 
 			return new TypeInfo(
 				typeID,
@@ -407,14 +450,22 @@ ${event.args.map((arg) => {
 				`Result<${typeOk.tsReturnType}, ${typeErr.tsReturnType}>`,
 				`Result<${typeOk.tsArgTypePrefixed}, ${typeErr.tsArgTypePrefixed}>`,
 				`Result<${typeOk.tsReturnTypePrefixed}, ${typeErr.tsReturnTypePrefixed}>`,
-				new TypeTS(`Result<${typeOk.typeDescription.name}, ${typeErr.typeDescription.name}`, true, false, false, {
-					'ok': typeOk.typeDescription,
-					'err': typeErr.typeDescription,
-				}),
+				new TypeTS(
+					`Result<${typeOk.typeDescription.name}, ${typeErr.typeDescription.name}`,
+					true,
+					false,
+					false,
+					{
+						ok: typeOk.typeDescription,
+						err: typeErr.typeDescription,
+					}
+				)
 			);
 
 			if (variant.variants[0]!.fields.length > 0) {
-				const generatedType = this.generateType(variant.variants[0]!.fields[0]!.type.toJSON() as number);
+				const generatedType = this.generateType(
+					variant.variants[0]!.fields[0]!.type.toJSON() as number
+				);
 
 				return new TypeInfo(
 					typeID,
@@ -422,41 +473,44 @@ ${event.args.map((arg) => {
 					generatedType.tsReturnType,
 					`${generatedType.tsArgTypePrefixed} | null`,
 					generatedType.tsReturnTypePrefixed,
-					new TypeTS('Result', false, false, false,{'0': generatedType.typeDescription}),
+					new TypeTS("Result", false, false, false, {
+						"0": generatedType.typeDescription,
+					})
 				);
 			} else {
 				return new TypeInfo(
 					typeID,
-					'null',
-					'null',
-					'null',
-					'null',
-					new TypeTS('null', false, false, true),
+					"null",
+					"null",
+					"null",
+					"null",
+					new TypeTS("null", false, false, true)
 				);
 			}
-		} else if (variantName == 'Option') {
+		} else if (variantName == "Option") {
 			if (variant.variants[1]!.fields.length > 0) {
-				const generatedType = this.generateType(variant.variants[1]!.fields[0]!.type.toJSON() as number);
+				const generatedType = this.generateType(
+					variant.variants[1]!.fields[0]!.type.toJSON() as number
+				);
 				return new TypeInfo(
 					typeID,
 					`${generatedType.tsArgType} | null`,
 					`${generatedType.tsReturnType} | null`,
 					`${generatedType.tsArgTypePrefixed} | null`,
 					`${generatedType.tsReturnTypePrefixed} | null`,
-					new TypeTS('Option', false, false, false,{
-						'0': generatedType.typeDescription,
-						'1': new TypeTS('null', false, false, true),
-					}),
+					new TypeTS("Option", false, false, false, {
+						"0": generatedType.typeDescription,
+						"1": new TypeTS("null", false, false, true),
+					})
 				);
-			}
-			else {
+			} else {
 				return new TypeInfo(
 					typeID,
-					'null',
-					'null',
-					'null',
-					'null',
-					new TypeTS('null', false, false, true),
+					"null",
+					"null",
+					"null",
+					"null",
+					new TypeTS("null", false, false, true)
 				);
 			}
 		}
@@ -472,12 +526,15 @@ ${event.args.map((arg) => {
 		if (!isInterface) {
 			const body = generateEnum(
 				variantName,
-				variant.variants.map((variant) => variant.name.toString()),
+				variant.variants.map((variant) => variant.name.toString())
 			);
 
-			const tsReturnTypePrefixed = variantName == 'ReturnNumber' ? 'ReturnNumber' : `ReturnTypes.${variantName}`;
+			const tsReturnTypePrefixed =
+				variantName == "ReturnNumber"
+					? "ReturnNumber"
+					: `ReturnTypes.${variantName}`;
 
-			const typeBody: {[index: string]: TypeTS | null} = {};
+			const typeBody: { [index: string]: TypeTS | null } = {};
 
 			variant.variants.forEach((variant) => {
 				typeBody[variant.name.toString()] = null;
@@ -491,7 +548,7 @@ ${event.args.map((arg) => {
 				tsReturnTypePrefixed,
 				new TypeTS(variantName, false, false, false, typeBody),
 				body,
-				body,
+				body
 			);
 		} else {
 			const bodyArgs = generateClassEnum(
@@ -499,24 +556,28 @@ ${event.args.map((arg) => {
 				variant.variants.map((variant) => variant.name.toString()),
 				variant.variants.map((variant, i) => {
 					if (variant.fields.length > 0) {
-						const type = this.generateType(variant.fields[0]!.type.toJSON() as number).tsArgType;
+						const type = this.generateType(
+							variant.fields[0]!.type.toJSON() as number
+						).tsArgType;
 						return `${type}`;
 					} else {
 						return `null`;
 					}
-				}),
+				})
 			);
 			const bodyReturns = generateClassEnum(
 				variantName,
 				variant.variants.map((variant) => variant.name.toString()),
 				variant.variants.map((variant, i) => {
 					if (variant.fields.length > 0) {
-						const type = this.generateType(variant.fields[0]!.type.toJSON() as number).tsReturnType;
+						const type = this.generateType(
+							variant.fields[0]!.type.toJSON() as number
+						).tsReturnType;
 						return `${type}`;
 					} else {
 						return `null`;
 					}
-				}),
+				})
 			);
 
 			const typeBody: {
@@ -524,15 +585,19 @@ ${event.args.map((arg) => {
 			} = {};
 
 			variant.variants.forEach((variant, index) => {
-				if(variant.fields.length > 0) {
-					typeBody[camelcase(variant.name.toString())] = this.generateType(variant.fields[0]!.type.toJSON() as number).typeDescription;
-				}
-				else {
+				if (variant.fields.length > 0) {
+					typeBody[camelcase(variant.name.toString())] = this.generateType(
+						variant.fields[0]!.type.toJSON() as number
+					).typeDescription;
+				} else {
 					typeBody[camelcase(variant.name.toString())] = null;
 				}
 			});
 
-			const tsReturnTypePrefixed = variantName == 'ReturnNumber' ? 'ReturnNumber' : `ReturnTypes.${variantName}`;
+			const tsReturnTypePrefixed =
+				variantName == "ReturnNumber"
+					? "ReturnNumber"
+					: `ReturnTypes.${variantName}`;
 
 			return new TypeInfo(
 				typeID,
@@ -542,7 +607,7 @@ ${event.args.map((arg) => {
 				tsReturnTypePrefixed,
 				new TypeTS(variantName, false, false, false, typeBody),
 				bodyArgs,
-				bodyReturns,
+				bodyReturns
 			);
 		}
 	};

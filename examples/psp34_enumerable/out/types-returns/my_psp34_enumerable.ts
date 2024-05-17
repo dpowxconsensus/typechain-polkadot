@@ -1,13 +1,13 @@
-import type BN from 'bn.js';
-import type {ReturnNumber} from '@727-ventures/typechain-types';
+import type BN from "bn.js";
+import type { ReturnNumber } from "@dpowxconsensus/typechain-types";
 
 export interface Id {
-	u8 ? : number,
-	u16 ? : number,
-	u32 ? : number,
-	u64 ? : number,
-	u128 ? : ReturnNumber,
-	bytes ? : Array<number>
+	u8?: number;
+	u16?: number;
+	u32?: number;
+	u64?: number;
+	u128?: ReturnNumber;
+	bytes?: Array<number>;
 }
 
 export class IdBuilder {
@@ -43,15 +43,15 @@ export class IdBuilder {
 	}
 }
 
-export type AccountId = string | number[]
+export type AccountId = string | number[];
 
 export interface PSP34Error {
-	custom ? : string,
-	selfApprove ? : null,
-	notApproved ? : null,
-	tokenExists ? : null,
-	tokenNotExists ? : null,
-	safeTransferCheckFailed ? : string
+	custom?: string;
+	selfApprove?: null;
+	notApproved?: null;
+	tokenExists?: null;
+	tokenNotExists?: null;
+	safeTransferCheckFailed?: string;
 }
 
 export class PSP34ErrorBuilder {
@@ -86,4 +86,3 @@ export class PSP34ErrorBuilder {
 		};
 	}
 }
-

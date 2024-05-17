@@ -3,7 +3,7 @@ import PathAPI from "path";
 import toml from "toml";
 
 /**
- * This package should compile your Rust projects, and generate TypeScript types with {@link @727-ventures/typechain-polkadot}.
+ * This package should compile your Rust projects, and generate TypeScript types with {@link @dpowxconsensus/typechain-polkadot}.
  *
  *
  * @packageInfo
@@ -21,7 +21,11 @@ export function __assureDirExists(absPathToBase: string, relPathToDir: string) {
 	if (!FsAPI.existsSync(absPath)) FsAPI.mkdirSync(absPath);
 }
 
-export function __writeFileSync(absPathToBase: string, relFilePath: string, contents: string) {
+export function __writeFileSync(
+	absPathToBase: string,
+	relFilePath: string,
+	contents: string
+) {
 	FsAPI.writeFileSync(
 		PathAPI.resolve(absPathToBase, `./${relFilePath}`),
 		contents

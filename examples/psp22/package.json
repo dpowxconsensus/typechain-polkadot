@@ -1,22 +1,22 @@
 {
-  "name": "psp22",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "generate": "npx typechain-polkadot --in ./artifacts --out ./out",
-    "start": "ts-node index.ts"
-  },
-  "dependencies": {
-    "@727-ventures/typechain-polkadot": "1.0.3",
-	"@727-ventures/typechain-types": "1.0.1",
-    "@types/node": "^18.8.0",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.4",
-    "@polkadot/api": "^10.12.1",
-    "@polkadot/api-contract": "^10.12.1",
-    "@types/bn.js": "^5.1.0"
-  },
-  "author": "Supercolony-net",
-  "license": "ISC"
+	"name": "psp22",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"generate": "npx typechain-polkadot --in ./artifacts --out ./out",
+		"start": "ts-node index.ts"
+	},
+	"dependencies": {
+		"@dpowxconsensus/typechain-polkadot": "1.0.3",
+		"@dpowxconsensus/typechain-types": "1.0.1",
+		"@types/node": "^18.8.0",
+		"ts-node": "^10.7.0",
+		"typescript": "^4.6.4",
+		"@polkadot/api": "^10.12.1",
+		"@polkadot/api-contract": "^10.12.1",
+		"@types/bn.js": "^5.1.0"
+	},
+	"author": "Supercolony-net",
+	"license": "ISC"
 }
